@@ -7,6 +7,9 @@ using UnityEngine.UI;
 public class Holder : MonoBehaviour,IInitializable<IEnumerable<Ball>>
 {
     [SerializeField] private List<GameObject> holder_sprite;
+    [SerializeField] private GameObject cap;
+    [SerializeField] private GameObject holderFullParticles;
+
     [SerializeField] private int _maxBalls;
     [SerializeField] private float _ballRadius;
 
@@ -72,7 +75,30 @@ public class Holder : MonoBehaviour,IInitializable<IEnumerable<Ball>>
         }
         PlayClipIfCan(_putClip);
         _balls.Add(ball);
-        ball.Move(PendingPoint+Vector2.up*0.1f,GetBallPosition(_balls.Count-1));
+        ball.Move(PendingPoint + Vector2.up * 0.1f, GetBallPosition(_balls.Count - 1));
+    }
+    public bool GetFullHolderStatus()
+    {
+        bool holderFullStatus = false;
+        if (_balls.Count >= 4)
+        {
+            int previousBallGroupId = _balls[0].GroupId;
+            holderFullStatus = true;
+            for (int i = 1; i < _balls.Count; i++)
+            {
+                if (_balls[i].GroupId != previousBallGroupId)
+                {
+                    holderFullStatus = false;
+                    break;
+                }
+            }
+        }
+        return holderFullStatus;
+    }
+    public void SetHolderFullStatus(bool status)
+    {
+        cap.SetActive(status);
+        holderFullParticles.SetActive(status);
     }
     public void ResetBallPositions()
     {
@@ -85,7 +111,8 @@ public class Holder : MonoBehaviour,IInitializable<IEnumerable<Ball>>
 
     public Vector2 GetBallPosition(int index)
     {
-        return transform.TransformPoint((index + 0.5f) * 2.1f * _ballRadius * Vector2.up);
+        return transform.TransformPoint((index + 0.25f) * 2.1f * _ballRadius * Vector2.up);
+
     }
 
     private void PlayClipIfCan(AudioClip clip,float volume=0.35f)

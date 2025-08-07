@@ -16,6 +16,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Ball _ballPrefab;
     [SerializeField] private Button _holderaddbtn;
     [SerializeField] private AudioClip _winClip;
+    public bool enableUndo = true;
 
     public GameMode GameMode { get; private set; } = GameMode.Easy;
     public Level Level { get; private set; }
@@ -143,33 +144,29 @@ public class LevelManager : MonoBehaviour
             //ResetHolderAddOption(1,true);
         }
     }
+    // public void OnClickUndo()
+    // {
+    //     if (CurrentState != State.Playing || _undoStack.Count <= 0)
+    //         return;
+
+    //     var moveData = _undoStack.Pop();
+    //     MoveBallFromOneToAnother(moveData.ToHolder, moveData.FromHolder);
+    //     if (CurrentState!=State.Playing || _undoStack.Count<=0)
+    //         return;
+    // }
     public void OnClickUndo()
     {
         if (CurrentState != State.Playing || _undoStack.Count <= 0)
             return;
-
         var moveData = _undoStack.Pop();
-        MoveBallFromOneToAnother(moveData.ToHolder, moveData.FromHolder);
-
-
-        if (CurrentState!=State.Playing || _undoStack.Count<=0)
-            return;
-
-        //int movesLeft = PlayerPrefs.GetInt("UndoMovesLeft");
-        //if (movesLeft > 0)
-        //{
-        //    movesLeft--;
-        //    PlayerPrefs.SetInt("UndoMovesLeft", movesLeft);
-        //    GamePlayPanel gp = FindObjectOfType<GamePlayPanel>();
-        //    gp._undomovestxt.text = PlayerPrefs.GetInt("UndoMovesLeft").ToString();
-        //    if (movesLeft == 0)
-        //    {
-        //        gp.undoBtn.SetActive(false);
-        //        gp.undoRewardedBtn.SetActive(true);
-        //    }
-        //}
-        //var moveData = _undoStack.Pop();
-        //MoveBallFromOneToAnother(moveData.ToHolder,moveData.FromHolder);
+        if (!moveData.ToHolder.GetFullHolderStatus() && enableUndo)
+        {
+            MoveBallFromOneToAnother(moveData.ToHolder, moveData.FromHolder);
+        }
+        else
+        {
+            enableUndo = false;
+        }
     }
 
     private void Update()
@@ -193,38 +190,51 @@ public class LevelManager : MonoBehaviour
 
     private void OnClickHolder(Holder holder)
     {
-        var pendingHolder = _holders.FirstOrDefault(h => h.IsPending);
-
-        if (pendingHolder != null && pendingHolder != holder)
+        if (!holder.GetFullHolderStatus())
         {
-            if (holder.TopBall == null || (pendingHolder.TopBall.GroupId == holder.TopBall.GroupId && !holder.IsFull))
+            var pendingHolder = _holders.FirstOrDefault(h => h.IsPending);
+
+            if (pendingHolder != null && pendingHolder != holder)
             {
-                _undoStack.Push(new MoveData
+                if (holder.TopBall == null || (pendingHolder.TopBall.GroupId == holder.TopBall.GroupId && !holder.IsFull))
                 {
-                    FromHolder = pendingHolder,
-                    ToHolder = holder,
-                    Ball = pendingHolder.TopBall
-                });
-                MoveBallFromOneToAnother(pendingHolder,holder);
-                UndoBtn.interactable = true;
+                    _undoStack.Push(new MoveData
+                    {
+                        FromHolder = pendingHolder,
+                        ToHolder = holder,
+                        Ball = pendingHolder.TopBall
+                    });
+                    MoveBallFromOneToAnother(pendingHolder, holder);
+                    UndoBtn.interactable = true;
+                    enableUndo = true;
+                }
+                else
+                {
+                    pendingHolder.IsPending = false;
+                    holder.IsPending = true;
+                }
             }
             else
             {
-                pendingHolder.IsPending = false;
-                holder.IsPending = true;
+                if (holder.Balls.Any())
+                    holder.IsPending = !holder.IsPending;
             }
-        }
-        else
-        {
-            if (holder.Balls.Any())
-                holder.IsPending = !holder.IsPending;
         }
     }
 
-    private void MoveBallFromOneToAnother(Holder fromHolder,Holder toHolder)
+    private void MoveBallFromOneToAnother(Holder fromHolder, Holder toHolder)
     {
         toHolder.Move(fromHolder.RemoveTopBall());
+        StartCoroutine(CheckHolderFullStatus(toHolder));
         CheckAndGameOver();
+    }
+    IEnumerator CheckHolderFullStatus(Holder toHolder)
+    {
+        yield return new WaitForSeconds(0.2f);
+        if (toHolder.GetFullHolderStatus())
+        {
+            toHolder.SetHolderFullStatus(true);
+        }
     }
 
     private void CheckAndGameOver()
