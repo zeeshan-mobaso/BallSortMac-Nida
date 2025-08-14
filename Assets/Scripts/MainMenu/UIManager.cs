@@ -54,6 +54,7 @@ namespace MainMenu
                 _levelsPanel.gameObject.SetActive(true);
                 return;
             }
+            Debug.LogError("Now I am on home...");
             ShowAd.showRateUsCounter = -1;
             if (PlayerPrefs.GetString("SubscriptionPurchased") == "NO")
             { //here I need to set logic of not showing pro screen
@@ -106,6 +107,10 @@ namespace MainMenu
                 lastlevelplayed = "ExpertLastLevelPlayed";
             if (PlayerPrefs.GetInt(lastlevelplayed) > 99)
                 PlayerPrefs.SetInt(lastlevelplayed, 99);
+            if (PlayerPrefs.GetString("SubscriptionPurchased") == "NO")
+            { 
+                noAdsBtn.SetActive(true);
+            }
 
             //ShowAd.Instance.ShowBanner(); //DANI
             //ShowAd.Instance.ShowAppOpenAd();

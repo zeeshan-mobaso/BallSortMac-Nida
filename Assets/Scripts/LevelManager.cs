@@ -103,6 +103,15 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
+    public void UpdateBallSprites(int index)
+    {
+        PlayerPrefs.SetInt("SelectedPlayingBall", index);
+        Ball[] balls = FindObjectsOfType<Ball>();
+        foreach (Ball b in balls)
+        {
+            b.UpdateBallSprites(index);
+        }
+    }
     public void OnClickHolderAdd()
     {
         if (PlayerPrefs.GetInt("HolderAddBtnUsed") == 1)
@@ -132,7 +141,7 @@ public class LevelManager : MonoBehaviour
             for (int i = 0; i < _holders.Count; i++)
             {
                 //_holders[i].transform.position = list[i];
-                if(GameMode==GameMode.Easy)
+                if (GameMode == GameMode.Easy)
                     _holders[i].transform.position = easyHolderPositions[i];
                 else
                     _holders[i].transform.position = holderPositions[i];

@@ -74,7 +74,6 @@ namespace IAP
                     Product product = m_StoreController.products.WithID(productId);
                     if (product != null && product.availableToPurchase)
                     {
-                        Debug.LogError(string.Format("Purchasing product asychronously: '{0}'", product.definition.id));// ... buy the product. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
                         m_StoreController.InitiatePurchase(product);
                     }
                     else
@@ -188,7 +187,7 @@ namespace IAP
             {
                 if (SubscriptionHandler.instance)
                     SubscriptionHandler.instance.SubscriptionPurchased(false);
-                Debug.Log("RestorePurchases FAIL. Not supported on this platform. Current = " + Application.platform);
+                // Debug.Log("RestorePurchases FAIL. Not supported on this platform. Current = " + Application.platform);
             }
         }
 
@@ -309,7 +308,7 @@ namespace IAP
 
         public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
         {
-            Debug.LogError(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
+            
             if (String.Equals(args.purchasedProduct.definition.id, subscriptionIDWeekly, StringComparison.Ordinal) ||
                 String.Equals(args.purchasedProduct.definition.id, subscriptionIDMonthly, StringComparison.Ordinal) ||
                 String.Equals(args.purchasedProduct.definition.id, subscriptionIDYearly, StringComparison.Ordinal))
@@ -343,7 +342,7 @@ namespace IAP
 
                 //ShowAd.Instance.HideBanner(); DANI
                 if (MainMenu.UIManager.Instance)
-                   MainMenu.UIManager.Instance.noAdsBtn.SetActive(false);
+                    MainMenu.UIManager.Instance.noAdsBtn.SetActive(false);
 
             }
             return PurchaseProcessingResult.Complete;

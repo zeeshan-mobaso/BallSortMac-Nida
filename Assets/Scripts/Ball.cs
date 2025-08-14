@@ -33,22 +33,13 @@ public class Ball : MonoBehaviour
             {
                 _renderer.color = _groupColors[value];
             }
-
-            //if (_groupSprites.Length <= _groupId)
-            //{
-            //    //Debug.LogWarning("No Color Found for Id");
-            //    return;
-            //}
-            //if (_useSprites)
-            //    _renderer.sprite = _groupSprites[value];
-            //else
-            //{
-            //    _renderer.color = _groupColors[value];
-            //}
-            //Debug.LogError("Current Ball : "+ PlayerPrefs.GetInt("SelectedPlayingBall"));
         }
     }
-
+    public void UpdateBallSprites(int index)
+    {
+        if (_useSprites)
+            _renderer.sprite = playingBalls[PlayerPrefs.GetInt("SelectedPlayingBall")].sprites[_groupId];
+    }
     private IEnumerator MoveBallEnumerator(Vector2 target)
     {
         var startPoint = transform.position;

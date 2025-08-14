@@ -14,6 +14,11 @@ namespace Game
         public static int currentCounter = -1;
         public int interstitialcounter = 3 ;
         public GameObject MacInterstitialAds;
+        public GameObject proscreen;
+        public void EnableSubscriptionScreen(bool status)
+        {
+            proscreen.SetActive(status);
+        }
 
 
         public static bool IsFirstTime
